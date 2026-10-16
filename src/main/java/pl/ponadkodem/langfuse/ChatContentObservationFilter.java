@@ -12,6 +12,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
@@ -47,7 +48,8 @@ class ChatContentObservationFilter implements ObservationFilter {
 		ObjectNode input = jsonMapper.createObjectNode();
 		ArrayNode messages = input.putArray("messages");
 		prompt.getInstructions().forEach(message -> addMessage(messages, message));
-		if (prompt.getOptions() instanceof ToolCallingChatOptions options && !options.getToolCallbacks().isEmpty()) {
+		// bez narzędzi getToolCallbacks() zwraca null, nie pustą listę
+		if (prompt.getOptions() instanceof ToolCallingChatOptions options && !CollectionUtils.isEmpty(options.getToolCallbacks())) {
 			ArrayNode tools = input.putArray("tools");
 			options.getToolCallbacks().forEach(callback -> {
 				ToolDefinition tool = callback.getToolDefinition();

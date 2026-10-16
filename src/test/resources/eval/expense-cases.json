@@ -1,0 +1,34 @@
+[
+  {
+    "message": "Wczoraj kawa i ciastko w Starbucksie, razem 27,50 zł",
+    "expected": { "amount": 27.50, "category": "FOOD", "description": "kawa i ciastko w Starbucksie" }
+  },
+  {
+    "message": "Tankowanie na Orlenie za 250 zł",
+    "expected": { "amount": 250, "category": "TRANSPORT", "description": "tankowanie paliwa na Orlenie" }
+  },
+  {
+    "message": "Zakupy w Biedronce: chleb 6 zł, mleko 4,50 i ser 12 zł",
+    "expected": { "amount": 22.50, "category": "FOOD", "description": "zakupy spożywcze w Biedronce" }
+  },
+  {
+    "message": "Pizza ze znajomymi, rachunek 180 zł, podzieliliśmy na trzy",
+    "expected": { "amount": 60, "category": "FOOD", "description": "pizza ze znajomymi, moja część rachunku" }
+  },
+  {
+    "message": "Netflix pobrał dziś 43 zł",
+    "expected": { "amount": 43, "category": "ENTERTAINMENT", "description": "subskrypcja Netflix" }
+  },
+  {
+    "message": "Dałem dychę za parking pod galerią",
+    "expected": { "amount": 10, "category": "TRANSPORT", "description": "parking pod galerią" }
+  },
+  {
+    "message": "Opłaciłem rachunek za prąd, 312,40 zł",
+    "expected": { "amount": 312.40, "category": "BILLS", "description": "rachunek za prąd" }
+  },
+  {
+    "message": "Nowe słuchawki z Media Expert za 399 zł",
+    "expected": { "amount": 399, "category": "SHOPPING", "description": "słuchawki z Media Expert" }
+  }
+]

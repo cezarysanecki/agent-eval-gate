@@ -36,5 +36,18 @@ dependencyManagement {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		excludeTags 'eval'
+	}
+}
+
+// evale wołają prawdziwy model i wysyłają wyniki do Langfuse - uruchamiane osobno: ./gradlew eval
+tasks.register('eval', Test) {
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	useJUnitPlatform {
+		includeTags 'eval'
+	}
+	testLogging.showStandardStreams = true
+	outputs.upToDateWhen { false }
 }
