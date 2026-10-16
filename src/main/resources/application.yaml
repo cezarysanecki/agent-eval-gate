@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: langfuse
+  config:
+    # lokalne sekrety (OPENAI_API_KEY, LANGFUSE_AUTH) - plik poza gitem, patrz .env.example
+    import: optional:file:.env[.properties]
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+    tools:
+      observations:
+        # argumenty i wynik wywołań narzędzi trafiają do spanów
+        include-content: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:3000/api/public/otel/v1/traces
+          headers:
+            # LANGFUSE_AUTH = base64("<public-key>:<secret-key>")
+            Authorization: Basic ${LANGFUSE_AUTH}
+  otlp:
+    metrics:
+      export:
+        # Langfuse przyjmuje tylko trace'y
+        enabled: false
