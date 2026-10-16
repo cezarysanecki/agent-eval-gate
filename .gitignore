@@ -57,5 +57,8 @@ bin/
 .LSOverride
 ._*
 
+### Pliki H2 "produkcyjnej" bazy wydatków ###
+/budget-db/data/
+
 ### Dane kontenerów (gdyby ktoś zmienił volumes na bind-mounty) ###
 /data/

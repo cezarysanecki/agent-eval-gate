@@ -1,0 +1,7 @@
+[
+  { "question": "Ile wydałem na jedzenie w tym miesiącu?", "expectedAmount": 229.80 },
+  { "question": "Ile wydałem na transport w zeszłym miesiącu?", "expectedAmount": 310.00 },
+  { "question": "Ile wydałem łącznie w tym miesiącu?", "expectedAmount": 994.20 },
+  { "question": "Ile poszło na rozrywkę we wrześniu?", "expectedAmount": 138.00 },
+  { "question": "Ile wydałem na transport w tym miesiącu?", "expectedAmount": 10.00 }
+]

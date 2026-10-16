@@ -4,6 +4,15 @@ spring:
   config:
     # lokalne sekrety (OPENAI_API_KEY, LANGFUSE_AUTH) - plik poza gitem, patrz .env.example
     import: optional:file:.env[.properties]
+  datasource:
+    # "produkcyjna" baza wydatków: H2 w pliku, przeżywa restarty (AUTO_SERVER - aplikacja i evale mogą działać naraz);
+    # eval na snapshocie podmienia ją na świeżą bazę w pamięci
+    url: jdbc:h2:file:./budget-db/data/budget;AUTO_SERVER=TRUE
+    username: sa
+  sql:
+    init:
+      mode: always
+      schema-locations: file:budget-db/init.sql
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}

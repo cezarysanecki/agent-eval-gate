@@ -25,6 +25,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -50,4 +52,19 @@ tasks.register('eval', Test) {
 	}
 	testLogging.showStandardStreams = true
 	outputs.upToDateWhen { false }
+}
+
+// "produkcyjna" baza wydatków (H2 w pliku, tworzona przy pierwszym starcie aplikacji) - ten sam URL co w application.yaml
+def budgetDbUrl = 'jdbc:h2:file:./budget-db/data/budget;AUTO_SERVER=TRUE'
+
+// udaje normalne życie produkcji między uruchomieniami evala: użytkownik dopisał wydatki
+tasks.register('simulateDrift', JavaExec) {
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'org.h2.tools.RunScript'
+	args '-url', budgetDbUrl, '-user', 'sa', '-script', 'budget-db/simulate-drift.sql'
+}
+
+// przywraca "produkcyjną" bazę do stanu początkowego - utworzy się od nowa przy następnym starcie
+tasks.register('resetBudgetDb', Delete) {
+	delete 'budget-db/data'
 }
