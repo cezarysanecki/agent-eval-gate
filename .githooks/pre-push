@@ -1,5 +1,20 @@
 #!/bin/sh
-# Bramka evala: push nie wychodzi, jeśli wariant produkcyjny promptu spadnie poniżej progu.
+# Bramka evala: push nie wychodzi, jeśli prompt produkcyjny spadnie poniżej progu.
 # Włączenie w klonie: git config core.hooksPath .githooks
 # Wymaga OPENAI_API_KEY i LANGFUSE_AUTH w .env oraz działającego Langfuse (podman-compose up -d).
-exec ./gradlew gate --quiet
+report=build/test-results/gate/TEST-pl.ponadkodem.langfuse.ExpenseExtractionEval.xml
+rm -f "$report"
+echo "Bramka evala: sprawdzam prompt produkcyjny..."
+./gradlew gate --quiet > /dev/null 2>&1
+status=$?
+if [ ! -f "$report" ]; then
+	echo "Bramka nie uruchomiła evala. Szczegóły: ./gradlew gate"
+	exit 1
+fi
+grep -A1 "=== expense-gate" "$report" | tail -1 | sed 's/^ *//'
+if [ $status -ne 0 ]; then
+	grep -o 'Bramka evala: [^=]*' "$report" | head -1 | sed 's/ *$//'
+	echo "Push zablokowany."
+	exit 1
+fi
+echo "Bramka przeszła, push idzie dalej."
