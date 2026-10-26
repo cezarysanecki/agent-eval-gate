@@ -109,7 +109,7 @@ class ExpenseExtractionEval {
 			List<CaseResult> results = cases.stream()
 					.map(evalCase -> evaluate(evalCase, variant, runId))
 					.toList();
-			report.append(summary(variant, results));
+			report.append(summary(variant.name(), results));
 		}
 		System.out.println(report);
 	}
@@ -121,7 +121,7 @@ class ExpenseExtractionEval {
 		List<CaseResult> results = loadCases().stream()
 				.map(evalCase -> evaluate(evalCase, PromptVariant.PRODUCTION, runId))
 				.toList();
-		System.out.println("\n=== " + runId + " ===\n" + summary(PromptVariant.PRODUCTION, results));
+		System.out.println("\n=== " + runId + " ===\n" + summary("PRODUKCJA", results));
 		List<String> failures = Stream.of(
 				gateCheck("kwota", results, CaseResult::amountCorrect, MIN_CODE_PASS_RATE),
 				gateCheck("kategoria", results, CaseResult::categoryCorrect, MIN_CODE_PASS_RATE),
@@ -182,8 +182,8 @@ class ExpenseExtractionEval {
 		return result;
 	}
 
-	private static String summary(PromptVariant variant, List<CaseResult> results) {
-		StringBuilder summary = new StringBuilder("%s  kwota %s  kategoria %s  opis %s%n".formatted(variant,
+	private static String summary(String label, List<CaseResult> results) {
+		StringBuilder summary = new StringBuilder("%s  kwota %s  kategoria %s  opis %s%n".formatted(label,
 				hits(results, CaseResult::amountCorrect),
 				hits(results, CaseResult::categoryCorrect),
 				hits(results, CaseResult::descriptionCorrect)));
