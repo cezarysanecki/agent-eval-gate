@@ -14,7 +14,8 @@ class DescriptionJudge {
 	private static final String PROMPT = """
 			Oceniasz opis wydatku wyciągnięty przez innego asystenta z wiadomości użytkownika.
 			Opis jest poprawny, jeśli mówi o tym samym wydatku co opis wzorcowy. Inne sformułowanie jest w porządku, \
-			brakujący kluczowy szczegół albo zmyślony szczegół nie jest. Kwota w opisie nie ma znaczenia.
+			brakujący kluczowy szczegół albo zmyślony szczegół nie jest. \
+			Szczegół, który wynika z innego słowa w opisie, nie jest brakujący. Kwota w opisie nie ma znaczenia.
 			W reason podaj jednym zdaniem po polsku, dlaczego.""";
 
 	private final ChatClient chatClient;

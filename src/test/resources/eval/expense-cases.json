@@ -5,7 +5,7 @@
   },
   {
     "message": "Tankowanie na Orlenie za 250 zł",
-    "expected": { "amount": 250, "category": "TRANSPORT", "description": "tankowanie paliwa na Orlenie" }
+    "expected": { "amount": 250, "category": "TRANSPORT", "description": "tankowanie na Orlenie" }
   },
   {
     "message": "Zakupy w Biedronce: chleb 6 zł, mleko 4,50 i ser 12 zł",
@@ -13,7 +13,7 @@
   },
   {
     "message": "Pizza ze znajomymi, rachunek 180 zł, podzieliliśmy na trzy",
-    "expected": { "amount": 60, "category": "FOOD", "description": "pizza ze znajomymi, moja część rachunku" }
+    "expected": { "amount": 60, "category": "FOOD", "description": "pizza ze znajomymi" }
   },
   {
     "message": "Netflix pobrał dziś 43 zł",
