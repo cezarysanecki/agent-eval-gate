@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
@@ -28,13 +30,17 @@ import tools.jackson.databind.json.JsonMapper;
  * Kwotę i kategorię ocenia kod, opis - drugi model. Każdy przypadek to osobny trace w Langfuse
  * z przypiętymi ocenami, a całe uruchomienie to jedna sesja.
  * Porównanie wariantów mierzy i raportuje (./gradlew eval). Bramka sprawdza tylko wariant produkcyjny
- * i oblewa build poniżej progu (./gradlew gate, odpalana przez hook pre-push z .githooks).
+ * i oblewa build, gdy kod znajdzie choć jeden błąd kwoty lub kategorii albo sędzia odrzuci zbyt wiele
+ * opisów (./gradlew gate, odpalana przez hook pre-push z .githooks).
  */
 @SpringBootTest
 class ExpenseExtractionEval {
 
-	// odsetek przypadków, w których kwota, kategoria i opis są poprawne naraz
-	static final double MIN_PASS_RATE = 0.85;
+	// sprawdzenia w kodzie są deterministyczne, więc każdy błąd to regresja
+	static final double MIN_CODE_PASS_RATE = 1.0;
+
+	// sędzia LLM bywa niestały przy tym samym opisie, więc dostaje margines
+	static final double MIN_JUDGE_PASS_RATE = 0.75;
 
 	record EvalCase(String message, Expense expected) {
 	}
@@ -115,10 +121,23 @@ class ExpenseExtractionEval {
 		List<CaseResult> results = loadCases().stream()
 				.map(evalCase -> evaluate(evalCase, PromptVariant.PRODUCTION, runId))
 				.toList();
-		double passRate = (double) results.stream().filter(CaseResult::allCorrect).count() / results.size();
 		System.out.println("\n=== " + runId + " ===\n" + summary(PromptVariant.PRODUCTION, results));
-		assertTrue(passRate >= MIN_PASS_RATE, "Bramka evala: %s poprawnych przypadków, wymagane co najmniej %s"
-				.formatted(hits(results, CaseResult::allCorrect), "%.0f%%".formatted(MIN_PASS_RATE * 100)));
+		List<String> failures = Stream.of(
+				gateCheck("kwota", results, CaseResult::amountCorrect, MIN_CODE_PASS_RATE),
+				gateCheck("kategoria", results, CaseResult::categoryCorrect, MIN_CODE_PASS_RATE),
+				gateCheck("opis", results, CaseResult::descriptionCorrect, MIN_JUDGE_PASS_RATE))
+				.flatMap(Optional::stream)
+				.toList();
+		assertTrue(failures.isEmpty(), "Bramka evala: " + String.join("; ", failures));
+	}
+
+	private static Optional<String> gateCheck(String name, List<CaseResult> results, Predicate<CaseResult> check,
+			double minPassRate) {
+		long passed = results.stream().filter(check).count();
+		if (passed >= Math.ceil(minPassRate * results.size())) {
+			return Optional.empty();
+		}
+		return Optional.of("%s %s, wymagane %.0f%%".formatted(name, hits(results, check), minPassRate * 100));
 	}
 
 	private static String runId(String name) {

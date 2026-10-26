@@ -1,5 +1,5 @@
 #!/bin/sh
-# Bramka evala: push nie wychodzi, jeśli prompt produkcyjny spadnie poniżej progu.
+# Bramka evala: push nie wychodzi, jeśli prompt produkcyjny spadnie poniżej progów.
 # Włączenie w klonie: git config core.hooksPath .githooks
 # Wymaga OPENAI_API_KEY i LANGFUSE_AUTH w .env oraz działającego Langfuse (podman-compose up -d).
 report=build/test-results/gate/TEST-pl.ponadkodem.langfuse.ExpenseExtractionEval.xml
