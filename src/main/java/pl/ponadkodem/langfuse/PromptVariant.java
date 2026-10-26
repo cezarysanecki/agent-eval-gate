@@ -22,6 +22,9 @@ enum PromptVariant {
 	V2("""
 			Wyciągnij z wiadomości wydatek: kwotę, kategorię i krótki opis.""");
 
+	// wariant, który serwuje aplikacja - ten pilnuje bramka przed pushem (./gradlew gate)
+	static final PromptVariant PRODUCTION = V1;
+
 	private final String systemPrompt;
 
 	PromptVariant(String systemPrompt) {

@@ -17,7 +17,7 @@ class ExpenseController {
 
 	@PostMapping("/expenses")
 	Expense extract(@RequestBody ExtractRequest request) {
-		return extractor.extract(request.message(), Objects.requireNonNullElse(request.variant(), PromptVariant.V1));
+		return extractor.extract(request.message(), Objects.requireNonNullElse(request.variant(), PromptVariant.PRODUCTION));
 	}
 
 	record ExtractRequest(String message, PromptVariant variant) {

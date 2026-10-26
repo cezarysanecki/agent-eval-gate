@@ -1,5 +1,7 @@
 package pl.ponadkodem.langfuse;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -25,11 +27,14 @@ import tools.jackson.databind.json.JsonMapper;
  * Eval wyciągania wydatków: te same wejścia (eval/expense-cases.json) dla obu wariantów promptu.
  * Kwotę i kategorię ocenia kod, opis - drugi model. Każdy przypadek to osobny trace w Langfuse
  * z przypiętymi ocenami, a całe uruchomienie to jedna sesja.
- * Nie jest testem z asercjami - mierzy i raportuje. Uruchomienie: ./gradlew eval
+ * Porównanie wariantów mierzy i raportuje (./gradlew eval). Bramka sprawdza tylko wariant produkcyjny
+ * i oblewa build poniżej progu (./gradlew gate, odpalana przez hook pre-push z .githooks).
  */
-@Tag("eval")
 @SpringBootTest
 class ExpenseExtractionEval {
+
+	// odsetek przypadków, w których kwota, kategoria i opis są poprawne naraz
+	static final double MIN_PASS_RATE = 0.85;
 
 	record EvalCase(String message, Expense expected) {
 	}
@@ -88,9 +93,10 @@ class ExpenseExtractionEval {
 	}
 
 	@Test
+	@Tag("eval")
 	void compareVariants() throws IOException {
 		List<EvalCase> cases = loadCases();
-		String runId = "expense-eval " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+		String runId = runId("expense-eval");
 
 		StringBuilder report = new StringBuilder("\n=== " + runId + " (sesja w Langfuse) ===\n");
 		for (PromptVariant variant : PromptVariant.values()) {
@@ -100,6 +106,23 @@ class ExpenseExtractionEval {
 			report.append(summary(variant, results));
 		}
 		System.out.println(report);
+	}
+
+	@Test
+	@Tag("gate")
+	void productionPromptPassesGate() throws IOException {
+		String runId = runId("expense-gate");
+		List<CaseResult> results = loadCases().stream()
+				.map(evalCase -> evaluate(evalCase, PromptVariant.PRODUCTION, runId))
+				.toList();
+		double passRate = (double) results.stream().filter(CaseResult::allCorrect).count() / results.size();
+		System.out.println("\n=== " + runId + " ===\n" + summary(PromptVariant.PRODUCTION, results));
+		assertTrue(passRate >= MIN_PASS_RATE, "Bramka evala: %s poprawnych przypadków, wymagane co najmniej %s"
+				.formatted(hits(results, CaseResult::allCorrect), "%.0f%%".formatted(MIN_PASS_RATE * 100)));
+	}
+
+	private static String runId(String name) {
+		return name + " " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 	}
 
 	private List<EvalCase> loadCases() throws IOException {

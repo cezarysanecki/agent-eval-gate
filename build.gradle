@@ -39,8 +39,19 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform {
-		excludeTags 'eval'
+		excludeTags 'eval', 'gate'
 	}
+}
+
+// bramka przed pushem: wariant produkcyjny promptu poniżej progu oblewa build - odpala ją .githooks/pre-push
+tasks.register('gate', Test) {
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	useJUnitPlatform {
+		includeTags 'gate'
+	}
+	testLogging.showStandardStreams = true
+	outputs.upToDateWhen { false }
 }
 
 // evale wołają prawdziwy model i wysyłają wyniki do Langfuse - uruchamiane osobno: ./gradlew eval
