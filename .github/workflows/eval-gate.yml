@@ -15,7 +15,10 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 27
+          # Gradle działa na 26, kod kompiluje toolchain 27 - jak lokalnie
+          java-version: |
+            27
+            26
           cache: gradle
       - name: Eval promptu produkcyjnego
         run: ./gradlew gate
